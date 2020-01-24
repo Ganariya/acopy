@@ -3,6 +3,7 @@ import collections
 import random
 import time
 import os
+import json
 
 import numpy as np
 import networkx as nx
@@ -315,10 +316,12 @@ class DrawGraph(SolverPlugin):
 
 class StatsRecorder(SolverPlugin):
 
-    def __init__(self):
+    def __init__(self, save_path=".", file_name="stats"):
         super().__init__()
         self.stats = collections.defaultdict(list)
         self.data = {'solutions': set()}
+        self.save_path = save_path
+        self.file_name = os.path.join(save_path, file_name + ".json")
 
     def on_start(self, state):
         levels = [edge['pheromone'] for edge in state.graph.edges.values()]
@@ -387,3 +390,9 @@ class StatsRecorder(SolverPlugin):
     def pump(self, stats):
         for stat, data in stats.items():
             self.stats[stat].append(data)
+
+    def save(self):
+        if not os.path.isdir(self.save_path):
+            os.mkdir(self.save_path)
+        with open(self.file_name, 'w') as f:
+            json.dump(self.stats, f, ensure_ascii=False)

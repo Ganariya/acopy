@@ -222,7 +222,9 @@ class Solver:
             avg = costs / len(solutions)
 
             sd = sum([(s.cost - avg) ** 2 for s in solutions])
-            costs += sd * sd
+
+            if sd < 1e20:
+                costs += sd ** 4
 
             if costs < prev:
                 prev = costs

@@ -276,7 +276,7 @@ class TimeLimit(EarlyTerminationPlugin):
 
 
 class DrawGraph(SolverPlugin):
-    def __init__(self, problem, save_path='.', leading='', is_iteration=False, is_finish=True, is_save=False):
+    def __init__(self, problem, save_path='.', leading='', is_iteration=False, is_finish=True, is_save=False, is_label=False):
         super().__init__()
         self.pos = problem.display_data or problem.node_coords
         self.save_path = save_path
@@ -284,6 +284,7 @@ class DrawGraph(SolverPlugin):
         self.is_iteration = is_iteration
         self.is_finish = is_finish
         self.is_save = is_save
+        self.is_label = is_label
         if not os.path.isdir(save_path):
             os.mkdir(save_path)
 
@@ -302,6 +303,9 @@ class DrawGraph(SolverPlugin):
         _, ax = plt.subplots()
         nx.draw_networkx_nodes(state.graph, pos=self.pos, ax=ax)
         nx.draw_networkx_edges(state.graph, pos=self.pos, edgelist=state.record.path, arrows=False)
+        if self.is_label:
+            labels = {x: str(x) for x in state.graph.nodes}
+            nx.draw_networkx_labels(state.graph, pos=self.pos, labels=labels, font_color='white')
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.show()
 
@@ -310,6 +314,9 @@ class DrawGraph(SolverPlugin):
         _, ax = plt.subplots()
         nx.draw_networkx_nodes(state.graph, pos=self.pos, ax=ax)
         nx.draw_networkx_edges(state.graph, pos=self.pos, edgelist=state.record.path, arrows=False)
+        if self.is_label:
+            labels = {x: str(x) for x in state.graph.nodes}
+            nx.draw_networkx_labels(state.graph, pos=self.pos, labels=labels, font_color='white')
         ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
         plt.savefig(os.path.join(self.save_path, self.leading + '_graph_record.png'))
 

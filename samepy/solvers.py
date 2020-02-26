@@ -222,7 +222,11 @@ class Solver:
             avg = costs / len(solutions)
 
             sd = sum([(s.cost - avg) ** 2 for s in solutions])
-            costs += sd * sd
+
+            theta = 3
+
+            if sd < 1e20:
+                costs += sd ** theta
 
             if costs < prev:
                 prev = costs

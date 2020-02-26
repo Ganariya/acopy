@@ -292,10 +292,10 @@ class DrawGraph(SolverPlugin):
             self.draw(state)
 
     def on_finish(self, state):
-        if self.is_finish:
-            self.draw(state)
         if self.is_save:
             self.save(state)
+        if self.is_finish:
+            self.draw(state)
 
     def draw(self, state):
         plt.figure()

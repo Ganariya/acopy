@@ -213,12 +213,14 @@ class Solver:
                       colony=colony, rho=self.rho, q=self.q, top=self.top)
 
         prev = 1e200
+        cnt = 0
         for __ in utils.looper(limit):
 
             ng = copy.deepcopy(graph)
             solutions = self.find_solutions(ng, state.ants)
 
             costs = sum([s.cost for s in solutions])
+            max_cost = max([s.cost for s in solutions])
             avg = costs / len(solutions)
 
             sd = sum([(s.cost - avg) ** 2 for s in solutions])
@@ -228,9 +230,14 @@ class Solver:
             if sd < 1e20:
                 costs += sd ** theta
 
+            if max_cost > 1e7:
+                cnt += 1
+
             if costs < prev:
                 prev = costs
                 yield solutions
+
+        print(f"構築に失敗した回数 {cnt}")
 
     def exploit(self, *args, **kwargs):
         best = None

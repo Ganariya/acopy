@@ -68,7 +68,7 @@ print("greedy min k-path")
 greedy_graph = copy.deepcopy(graph)
 greedy_solutions = []
 for k in range(K):
-    print("k-path")
+    print("k-greedy-path: ", k)
     colony = acopy.Colony()
     solver = acopy.Solver()
     greedy_ans = solver.exploit(greedy_graph, colony, limit=100)

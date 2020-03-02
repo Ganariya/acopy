@@ -46,6 +46,7 @@ class Ant:
         return f'Ant(alpha={self.alpha}, beta={self.beta})'
 
     def init_solution(self, graph, start=1):
+        # start = random.randint(1, len(graph.nodes))
         self.solution = Solution(graph, start, ant=self)
         self.init_unvisited_nodes(graph)
 
@@ -82,11 +83,19 @@ class Ant:
             scores.append(score)
         return scores
 
-    def choose_node(self, scores):
+    def choose_node(self, scores, q_0=0.8):
         choices = self.unvisited
         total = sum(scores)
         cumdist = list(itertools.accumulate(scores)) + [total]
         index = bisect.bisect(cumdist, random.random() * total)
+        # q = random.random()
+        # if q < q_0:
+        #     cand = []
+        #     for i in range(len(choices)):
+        #         if scores[i] > 1e-30:
+        #             cand.append(choices[i])
+        #     if len(cand):
+        #         return random.choice(cand)
         return choices[min(index, len(choices) - 1)]
 
     def score_edge(self, edge):

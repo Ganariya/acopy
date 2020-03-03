@@ -10,7 +10,7 @@ from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromo
 from acopy.utils.plot import Plotter
 
 # K = int(input())
-K = 4
+K = 8
 
 # -------------------------------------------------
 # 初期グラフの作成

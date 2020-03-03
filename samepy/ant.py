@@ -81,7 +81,7 @@ class Ant:
         for node in self.unvisited:
             edge = graph.edges[self.solution.current, node]
             score = self.score_edge(edge)
-            # score = self.score_residual(graph, self.solution.current, node, score)
+            score = self.score_residual(graph, self.solution.current, node, score)
             scores.append(score)
         return scores
 
@@ -111,13 +111,11 @@ class Ant:
     def score_residual(self, graph, now, to, score):
         cands = set(copy.deepcopy(self.unvisited))
         cands.remove(to)
-        # if len(cands) <= 10:
-        #     print("hre")
         bad = []
         for cand in cands:
             if graph.edges[to, cand]['weight'] > 1e10:
                 bad.append(cand)
         for x in bad:
             cands.remove(x)
-        score = score * max(1, len(cands))
+        score = score / max(1, len(cands) ** 4)
         return score

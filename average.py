@@ -10,7 +10,7 @@ from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromo
 from acopy.utils.plot import Plotter
 
 # K = int(input())
-K = 6
+K = 4
 
 # -------------------------------------------------
 # 初期グラフの作成
@@ -72,7 +72,7 @@ for k in range(K):
     colony = acopy.Colony()
     solver = acopy.Solver()
     greedy_ans = solver.exploit(greedy_graph, colony, limit=100)
-    print(greedy_ans, "\n\n")
+    print(greedy_ans, "\n")
     for p in greedy_ans:
         x, y = p[0], p[1]
         greedy_graph.edges[x, y]['pheromone'] = 0

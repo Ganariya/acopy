@@ -5,6 +5,9 @@ import collections
 import random
 import copy
 
+import matplotlib.pyplot as plt
+import networkx as nx
+
 from . import utils
 
 
@@ -205,7 +208,7 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
@@ -232,6 +235,48 @@ class Solver:
 
             if max_cost > 1e7:
                 cnt += 1
+                # dic = collections.defaultdict(int)
+                # for s in solutions:
+                #     for (x, y) in s:
+                #         p1 = min(x, y)
+                #         p2 = max(x, y)
+                #         dic[(p1, p2)] += 1
+                # bads = set()
+                # for key in dic:
+                #     if dic[key] > 1:
+                #         bads.add(key)
+                # print(bads)
+                # print(solutions)
+                #
+                # labels = {i: str(i) for i in graph.nodes()}
+                # colors = ['red', 'blue', 'green', 'pink', 'gray']
+                #
+                # for i in range(len(graph.nodes())):
+                #     index_color = 0
+                #     plt.figure(dpi=400)
+                #     _, ax = plt.subplots()
+                #     pos = problem.display_data or problem.node_coords
+                #     nx.draw_networkx_nodes(graph, pos)
+                #     for sol in solutions:
+                #         sol_path = sol.path
+                #         path = []
+                #         for j in range(0, i + 1):
+                #             p1 = min(sol_path[j][0], sol_path[j][1])
+                #             p2 = max(sol_path[j][0], sol_path[j][1])
+                #             p1 = sol_path[j][0]
+                #             p2 = sol_path[j][1]
+                #             path.append((p1, p2))
+                #         nx.draw_networkx_edges(graph, edgelist=path, pos=pos, edge_color=colors[index_color])
+                #         index_color += 1
+                #     # nx.draw_networkx_nodes(G, pos=pos, ax=ax)
+                #     # nx.draw_networkx_edges(G, pos=pos, edgelist=same_path, arrows=False, edge_color='blue')
+                #     # nx.draw_networkx_edges(G, pos=pos, edgelist=diff_path, arrows=False, edge_color='red')
+                #     nx.draw_networkx_labels(graph, pos, labels=labels, font_color='white')
+                #     ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+                #     plt.show()
+                #
+                # if random.random() < 1.1:
+                #     exit()
 
             if costs < prev:
                 prev = costs

@@ -18,16 +18,17 @@ print("init-graph")
 problem_path = os.path.join('tsp_model', 'bays29.tsp')
 problem = tsplib95.load_problem(problem_path)
 graph = problem.get_graph()
+labels = {i: str(i) for i in graph.nodes()}
 
 colony = acopy.Colony()
 solver = acopy.Solver(top=1)
 recorder = StatsRecorder('init_data')
-drawer = DrawGraph(problem=problem, save_path='init_data', is_save=True)
+drawer = DrawGraph(problem=problem, save_path='init_data', is_save=True, is_label=True)
 printer = Printout()
 restricter = MaxMinPheromoneRestrict(save_path='init_data')
 solver.add_plugins(recorder, drawer, printer, restricter)
 
-init_ans = solver.solve(graph, colony, limit=300)
+init_ans = solver.solve(graph, colony, limit=50)
 print(init_ans)
 
 
@@ -37,6 +38,7 @@ def draw_graph(G, path, title, is_save=False, save_path=""):
     pos = problem.display_data or problem.node_coords
     nx.draw_networkx_nodes(G, pos=pos, ax=ax)
     nx.draw_networkx_edges(G, pos=pos, edgelist=path, arrows=False)
+    nx.draw_networkx_labels(G, pos=pos, labels=labels, font_color='w')
     ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
     ax.set_title(title)
     if is_save:
@@ -52,7 +54,7 @@ colony = samepy.Colony()
 solver = samepy.Solver()
 ave_graph = copy.deepcopy(graph)
 
-average_solutions = solver.solve(ave_graph, colony, limit=1000, gen_size=K)
+average_solutions = solver.solve(ave_graph, colony, limit=1000, gen_size=K, problem=problem)
 cnt = 0
 for sol in average_solutions:
     print(sol)

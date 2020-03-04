@@ -85,12 +85,12 @@ class Ant:
             scores.append(score)
         return scores
 
-    def choose_node(self, scores, q_0=0.8):
+    def choose_node(self, scores, q_0=0.2):
         choices = self.unvisited
         total = sum(scores)
         cumdist = list(itertools.accumulate(scores)) + [total]
         index = bisect.bisect(cumdist, random.random() * total)
-        # q = random.random()
+        q = random.random()
         # if q < q_0:
         #     cand = []
         #     for i in range(len(choices)):
@@ -117,5 +117,5 @@ class Ant:
                 bad.append(cand)
         for x in bad:
             cands.remove(x)
-        score = score / max(1, len(cands) ** 4)
+        score = score / max(1, len(cands) ** 2)
         return score

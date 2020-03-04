@@ -1,3 +1,9 @@
+import warnings
+import matplotlib
+
+warnings.filterwarnings('ignore', category=matplotlib.MatplotlibDeprecationWarning)
+warnings.filterwarnings('ignore', category=UserWarning)
+
 import os
 import acopy
 import samepy
@@ -10,7 +16,7 @@ from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromo
 from acopy.utils.plot import Plotter
 
 # K = int(input())
-K = 8
+K = 4
 
 # -------------------------------------------------
 # 初期グラフの作成
@@ -28,7 +34,7 @@ printer = Printout()
 restricter = MaxMinPheromoneRestrict(save_path='init_data')
 solver.add_plugins(recorder, drawer, printer, restricter)
 
-init_ans = solver.solve(graph, colony, limit=50)
+init_ans = solver.solve(graph, colony, limit=1000)
 print(init_ans)
 
 

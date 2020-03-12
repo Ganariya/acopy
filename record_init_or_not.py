@@ -56,7 +56,7 @@ def draw_graph(G, path, title, is_save=False, save_path=""):
 res_data = {}
 res_data['average'] = []
 res_data['nothing'] = []
-for __ in range(1):
+for __ in range(30):
 
     # -------------------------------------------------
     # make average graph

@@ -209,7 +209,7 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
@@ -218,6 +218,8 @@ class Solver:
 
         prev = 1e200
         cnt = 0
+        success_list = []
+
         for __ in utils.looper(limit):
 
             ng = copy.deepcopy(graph)
@@ -246,7 +248,24 @@ class Solver:
                 prev = costs
                 yield solutions
 
-        print(f"構築に失敗した回数 {cnt}")
+            if pheromone_update:
+                # success
+                if sd < 1e20:
+                    next_pheromones = collections.defaultdict(float)
+                    if self.top:
+                        solutions = solutions[:self.top]
+                    for solution in solutions:
+                        for edge in solution:
+                            next_pheromones[edge] += self.q / solution.cost
+                    for edge in state.graph.edges:
+                        p = graph.edges[edge]['pheromone']
+                        graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+
+            success_list.append(cnt)
+
+        print(f"構築に失敗した回数 {cnt}", success_list)
+        plt.plot([i for i in range(3000)], success_list)
+        plt.show()
 
     def exploit(self, *args, **kwargs):
         best = None
@@ -426,6 +445,7 @@ class Solver:
             nx.draw_networkx_labels(graph, pos, labels=labels, font_color='white')
             ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
             plt.savefig(image_path + f"/{i}.png")
+
 
 class SolverPlugin:
     """Solver plugin.

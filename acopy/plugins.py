@@ -124,7 +124,7 @@ class MaxMinPheromoneRestrict(SolverPlugin):
 
     def on_finish(self, state):
         super().on_finish(state)
-        self.draw(state)
+        # self.draw(state)
 
 
 class Opt2Swap(SolverPlugin):

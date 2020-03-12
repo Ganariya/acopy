@@ -11,6 +11,7 @@ import tsplib95
 import networkx as nx
 import matplotlib.pyplot as plt
 import copy
+import json
 
 from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromone, MaxMinPheromoneRestrict
 from acopy.utils.plot import Plotter
@@ -29,10 +30,9 @@ labels = {i: str(i) for i in graph.nodes()}
 colony = acopy.Colony()
 solver = acopy.Solver(top=1)
 recorder = StatsRecorder('init_data')
-drawer = DrawGraph(problem=problem, save_path='init_data', is_save=True, is_label=True)
 printer = Printout()
 restricter = MaxMinPheromoneRestrict(save_path='init_data')
-solver.add_plugins(recorder, drawer, printer, restricter)
+solver.add_plugins(recorder, printer, restricter)
 
 init_ans = solver.solve(graph, colony, limit=1000)
 print(init_ans)
@@ -56,7 +56,7 @@ def draw_graph(G, path, title, is_save=False, save_path=""):
 res_data = {}
 res_data['average'] = []
 res_data['nothing'] = []
-for __ in range(100):
+for __ in range(1):
 
     # -------------------------------------------------
     # make average graph
@@ -102,3 +102,6 @@ for __ in range(100):
     print("\n\n\n")
     res_data['nothing'].append(costs)
     print(res_data)
+
+with open('init_or_not.json', 'w') as f:
+    json.dump(res_data, f)

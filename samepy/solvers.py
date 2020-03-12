@@ -237,10 +237,10 @@ class Solver:
             if max_cost > 1e7:
                 cnt += 1
 
-                self.make_moving_image(solutions, graph, problem)
-
-                if random.random() < 0.2:
-                    exit()
+                # self.make_moving_image(solutions, graph, problem)
+                #
+                # if random.random() < 0.2:
+                #     exit()
 
             if costs < prev:
                 prev = costs

@@ -4,6 +4,10 @@ import functools
 import collections
 import random
 import copy
+import os
+
+import matplotlib.pyplot as plt
+import networkx as nx
 
 from . import utils
 
@@ -205,7 +209,7 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
@@ -232,6 +236,11 @@ class Solver:
 
             if max_cost > 1e7:
                 cnt += 1
+
+                # self.make_moving_image(solutions, graph, problem)
+                #
+                # if random.random() < 0.2:
+                #     exit()
 
             if costs < prev:
                 prev = costs
@@ -374,6 +383,49 @@ class Solver:
                 should_stop = True
         return should_stop
 
+    def make_moving_image(self, solutions, graph, problem):
+        # 画像などの情報
+        dic = collections.defaultdict(int)
+        for s in solutions:
+            for (x, y) in s:
+                p1 = min(x, y)
+                p2 = max(x, y)
+                dic[(p1, p2)] += 1
+        bads = set()
+        for key in dic:
+            if dic[key] > 1:
+                bads.add(key)
+        print(bads)
+        print(solutions)
+
+        labels = {i: str(i) for i in graph.nodes()}
+        colors = ['red', 'blue', 'green', 'pink', 'gray']
+
+        image_path = f"moving_images/{str(random.randint(0, 100003298932))}"
+
+        if not os.path.isdir(image_path):
+            os.mkdir(image_path)
+
+        for i in range(len(graph.nodes())):
+            index_color = 0
+            plt.figure(dpi=400)
+            _, ax = plt.subplots()
+            pos = problem.display_data or problem.node_coords
+            nx.draw_networkx_nodes(graph, pos)
+            for sol in solutions:
+                sol_path = sol.path
+                path = []
+                for j in range(0, i + 1):
+                    p1 = min(sol_path[j][0], sol_path[j][1])
+                    p2 = max(sol_path[j][0], sol_path[j][1])
+                    p1 = sol_path[j][0]
+                    p2 = sol_path[j][1]
+                    path.append((p1, p2))
+                nx.draw_networkx_edges(graph, edgelist=path, pos=pos, edge_color=colors[index_color])
+                index_color += 1
+            nx.draw_networkx_labels(graph, pos, labels=labels, font_color='white')
+            ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
+            plt.savefig(image_path + f"/{i}.png")
 
 class SolverPlugin:
     """Solver plugin.

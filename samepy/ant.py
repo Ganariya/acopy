@@ -3,6 +3,7 @@ import sys
 import itertools
 import bisect
 import random
+import copy
 
 from .utils import positive
 from .solvers import Solution
@@ -80,15 +81,16 @@ class Ant:
         for node in self.unvisited:
             edge = graph.edges[self.solution.current, node]
             score = self.score_edge(edge)
+            score = self.score_residual(graph, self.solution.current, node, score)
             scores.append(score)
         return scores
 
-    def choose_node(self, scores, q_0=0.8):
+    def choose_node(self, scores, q_0=0.2):
         choices = self.unvisited
         total = sum(scores)
         cumdist = list(itertools.accumulate(scores)) + [total]
         index = bisect.bisect(cumdist, random.random() * total)
-        # q = random.random()
+        q = random.random()
         # if q < q_0:
         #     cand = []
         #     for i in range(len(choices)):
@@ -105,3 +107,15 @@ class Ant:
         pre = 1 / weight
         post = edge['pheromone']
         return post ** self.alpha * pre ** self.beta
+
+    def score_residual(self, graph, now, to, score):
+        cands = set(copy.deepcopy(self.unvisited))
+        cands.remove(to)
+        bad = []
+        for cand in cands:
+            if graph.edges[to, cand]['weight'] > 1e10:
+                bad.append(cand)
+        for x in bad:
+            cands.remove(x)
+        score = score / max(1, len(cands) ** 2)
+        return score

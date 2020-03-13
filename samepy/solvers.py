@@ -251,9 +251,8 @@ class Solver:
             if pheromone_update:
                 # success
                 if sd < 1e20:
+                    pass
                     next_pheromones = collections.defaultdict(float)
-                    if self.top:
-                        solutions = solutions[:self.top]
                     for solution in solutions:
                         for edge in solution:
                             next_pheromones[edge] += self.q / solution.cost
@@ -261,11 +260,36 @@ class Solver:
                         p = graph.edges[edge]['pheromone']
                         graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
 
+                # 駄目な場合にフェロモンを修正する
+                # else:
+                #     edge_count = collections.defaultdict(int)
+                #     for sol in solutions:
+                #         for p in sol:
+                #             x = min(p[0], p[1])
+                #             y = max(p[0], p[1])
+                #             edge_count[(x, y)] += 1
+                #     for key in edge_count:
+                #         if edge_count[key] > 1:
+                #             x = key[0]
+                #             y = key[1]
+                #             d = edge_count[key]
+                #             graph.edges[(x, y)]['pheromone'] *= (1 - self.rho) ** d
+                #             graph.edges[(y, x)]['pheromone'] *= (1 - self.rho) ** d
+
+                # else:
+                #     next_pheromones = collections.defaultdict(float)
+                #     for solution in solutions:
+                #         for edge in solution:
+                #             next_pheromones[edge] += self.q / solution.cost
+                #     for edge in state.graph.edges:
+                #         p = graph.edges[edge]['pheromone']
+                #         graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+
             success_list.append(cnt)
 
-        print(f"構築に失敗した回数 {cnt}", success_list)
-        plt.plot([i for i in range(3000)], success_list)
-        plt.show()
+        print(f"構築に失敗した回数 {cnt}")
+        # plt.plot([i for i in range(1000)], success_list)
+        # plt.show()
 
     def exploit(self, *args, **kwargs):
         best = None

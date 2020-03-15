@@ -81,6 +81,7 @@ class Ant:
         for node in self.unvisited:
             edge = graph.edges[self.solution.current, node]
             score = self.score_edge(edge)
+            # 残余度の計算
             score = self.score_residual(graph, self.solution.current, node, score)
             scores.append(score)
         return scores

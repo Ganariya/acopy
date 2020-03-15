@@ -251,7 +251,6 @@ class Solver:
             if pheromone_update:
                 # success
                 if sd < 1e20:
-                    pass
                     next_pheromones = collections.defaultdict(float)
                     for solution in solutions:
                         for edge in solution:

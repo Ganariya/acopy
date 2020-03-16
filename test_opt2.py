@@ -16,7 +16,7 @@ from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromo
 from acopy.utils.plot import Plotter
 
 # K = int(input())
-K = 8
+K = 5
 
 # -------------------------------------------------
 # 初期グラフの作成
@@ -76,12 +76,12 @@ def draw_graph(G, path, title, is_save=False, save_path=""):
 # pheromone update fix graph
 
 
-print("update pheromone graph")
+print("test opt2 fix update")
 colony = samepy.Colony()
 solver = samepy.Solver()
 update_graph = copy.deepcopy(graph)
 
-average_solutions = solver.solve(update_graph, colony, limit=limit, gen_size=K, problem=problem, pheromone_update=True)
+average_solutions = solver.solve(update_graph, colony, limit=limit, gen_size=K, problem=problem, pheromone_update=True, opt2=False)
 cnt = 0
 for sol in average_solutions:
     print(sol)

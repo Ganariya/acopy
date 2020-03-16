@@ -209,7 +209,7 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False, opt2=False):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
@@ -236,7 +236,7 @@ class Solver:
             if sd < 1e20:
                 costs += sd ** theta
 
-            if max_cost > 1e7:
+            if max_cost > 1e10:
                 cnt += 1
 
                 # self.make_moving_image(solutions, graph, problem)
@@ -244,9 +244,22 @@ class Solver:
                 # if random.random() < 0.2:
                 #     exit()
 
-            if costs < prev:
-                prev = costs
-                yield solutions
+            if opt2 and max_cost > 1e10:
+                self.opt2(ng, solutions, graph)
+
+                costs = sum([s.cost for s in solutions])
+                max_cost = max([s.cost for s in solutions])
+                avg = costs / len(solutions)
+
+                sd = sum([(s.cost - avg) ** 2 for s in solutions])
+
+                theta = 3
+
+                if sd < 1e20:
+                    costs += sd ** theta
+
+                if max_cost < 1e10:
+                    cnt -= 1
 
             if pheromone_update:
                 # success
@@ -283,6 +296,10 @@ class Solver:
                 #     for edge in state.graph.edges:
                 #         p = graph.edges[edge]['pheromone']
                 #         graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+
+            if costs < prev:
+                prev = costs
+                yield solutions
 
             success_list.append(cnt)
 
@@ -369,6 +386,7 @@ class Solver:
             ants.sort(key=lambda x: x.solution.cost, reverse=True)
         for ant in ants:
             ant.solution.close()
+            ant.erase(graph, ant.solution.nodes[-1], ant.solution.nodes[0])
         solutions = [ant.solution for ant in ants]
         return solutions
 
@@ -468,6 +486,92 @@ class Solver:
             nx.draw_networkx_labels(graph, pos, labels=labels, font_color='white')
             ax.tick_params(left=True, bottom=True, labelleft=True, labelbottom=True)
             plt.savefig(image_path + f"/{i}.png")
+
+    def opt2(self, graph, solutions, origin):
+        edge_count = collections.defaultdict(int)
+        for sol in solutions:
+            for p in sol:
+                x = min(p[0], p[1])
+                y = max(p[0], p[1])
+                edge_count[(x, y)] += 1
+                edge_count[(y, x)] += 1
+
+        n = len(graph.nodes)
+        for sol in solutions:
+            nodes = sol.nodes
+            for i in range(0, n):
+                best_cost = 1e100
+                best_j = -1
+                if edge_count[(nodes[i], nodes[(i + 1) % n])] > 1:
+                    for j in range(0, n):
+                        if i == j: continue
+
+                        ii = min(i, j)
+                        jj = max(i, j)
+                        a = nodes[ii]
+                        b = nodes[(ii + 1) % n]
+                        c = nodes[jj]
+                        d = nodes[(jj + 1) % n]
+
+                        if edge_count[a, c] == 0 and edge_count[b, d] == 0:
+                            dist = origin.edges[a, c]['weight'] + origin.edges[b, d]['weight'] - origin.edges[a, b]['weight'] - origin.edges[c, d]['weight']
+                            if dist < best_cost:
+                                best_cost = dist
+                                best_j = j
+
+                if best_j != -1:
+                    ii = min(i, best_j)
+                    jj = max(i, best_j)
+                    a = nodes[ii]
+                    b = nodes[(ii + 1) % n]
+                    c = nodes[jj]
+                    d = nodes[(jj + 1) % n]
+                    if edge_count[a, c] == 0 and edge_count[b, d] == 0:
+                        edge_count[a, b] -= 1
+                        edge_count[b, a] -= 1
+                        edge_count[c, d] -= 1
+                        edge_count[d, c] -= 1
+                        edge_count[a, c] += 1
+                        edge_count[c, a] += 1
+                        edge_count[b, d] += 1
+                        edge_count[d, b] += 1
+                        nodes[ii + 1: jj + 1] = reversed(nodes[ii + 1: jj + 1])
+                        sol.path = []
+                        sol.cost = 0
+                        for k in range(n):
+                            sol.path.append((nodes[k], nodes[(k + 1) % n]))
+                            sol.cost += origin.edges[(nodes[k], nodes[(k + 1) % n])]['weight']
+
+                        if edge_count[a, b] == 0:
+                            graph.edges[a, b]['weight'] = origin.edges[a, b]['weight']
+                            graph.edges[b, a]['weight'] = origin.edges[b, a]['weight']
+                        if edge_count[c, d] == 0:
+                            graph.edges[c, d]['weight'] = origin.edges[c, d]['weight']
+                            graph.edges[d, c]['weight'] = origin.edges[d, c]['weight']
+
+                        graph.edges[a, c]['weight'] = 1e100
+                        graph.edges[c, a]['weight'] = 1e100
+                        graph.edges[b, d]['weight'] = 1e100
+                        graph.edges[d, b]['weight'] = 1e100
+
+            # if graph.edges[nodes[i], nodes[(i + 1) % n]]['weight'] > 1e10:
+        #     best_j = -1
+        #     best_dist = 1e100
+        #     for j in range(0, n):
+        #         if graph.edges[nodes[j], nodes[(j + 1) % n]]['weight'] > 1e10:
+        #             continue
+        #         ii, jj = min(i, j), max(i, j)
+        #         distA = graph.edges[nodes[ii], nodes[ii + 1]]['weight']
+        #         distB = graph.edges[nodes[jj], nodes[(jj + 1) % n]]['weight']
+        #         distC = graph.edges[nodes[ii], nodes[jj]]['weight']
+        #         distD = graph.edges[nodes[ii + 1], nodes[(jj + 1) % n]]['weight']
+        #
+        #         if distC < 1e10 and distD < 1e10:
+        #             if distC + distD - distA - distB < best_dist:
+        #                 best_j = j
+        #                 best_dist = distC + distD
+        #     if best_j != -1:
+        #         continue
 
 
 class SolverPlugin:

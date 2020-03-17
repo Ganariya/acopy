@@ -273,7 +273,8 @@ class Solver:
                     for edge in state.graph.edges:
                         p = graph.edges[edge]['pheromone']
                         if is_opt2:
-                            graph.edges[edge]['pheromone'] += next_pheromones[edge] / len(graph.nodes)
+                            graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+                            # graph.edges[edge]['pheromone'] += next_pheromones[edge] / len(graph.nodes)
                         else:
                             graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
 

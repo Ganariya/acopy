@@ -62,7 +62,7 @@ colony = samepy.Colony()
 solver = samepy.Solver()
 ave_graph = copy.deepcopy(graph)
 
-average_solutions = solver.solve(ave_graph, colony, limit=limit, gen_size=K, problem=problem)
+average_solutions = solver.solve(ave_graph, colony, limit=limit, gen_size=K, problem=problem, pheromone_update=True)
 cnt = 0
 for sol in average_solutions:
     print(sol)
@@ -81,7 +81,7 @@ colony = samepy.Colony()
 solver = samepy.Solver()
 update_graph = copy.deepcopy(graph)
 
-average_solutions = solver.solve(update_graph, colony, limit=limit, gen_size=K, problem=problem, pheromone_update=True, opt2=True)
+average_solutions = solver.solve(update_graph, colony, limit=limit, gen_size=K, problem=problem, pheromone_update=True, is_opt2=True)
 cnt = 0
 for sol in average_solutions:
     print(sol)

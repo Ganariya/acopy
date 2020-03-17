@@ -209,13 +209,14 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False, opt2=False):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False, is_opt2=False):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
         state = State(graph=graph, ants=ants, limit=limit, gen_size=gen_size,
                       colony=colony, rho=self.rho, q=self.q, top=self.top)
 
+        print("------optimize begin------")
         prev = 1e200
         cnt = 0
         success_list = []
@@ -244,7 +245,7 @@ class Solver:
                 # if random.random() < 0.2:
                 #     exit()
 
-            if opt2 and max_cost > 1e10:
+            if is_opt2 and max_cost > 1e10:
                 self.opt2(ng, solutions, graph)
 
                 costs = sum([s.cost for s in solutions])
@@ -270,7 +271,11 @@ class Solver:
                             next_pheromones[edge] += self.q / solution.cost
                     for edge in state.graph.edges:
                         p = graph.edges[edge]['pheromone']
-                        graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+
+                        if is_opt2:
+                            graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+                        else:
+                            graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
 
                 # 駄目な場合にフェロモンを修正する
                 # else:
@@ -299,7 +304,11 @@ class Solver:
 
             if costs < prev:
                 prev = costs
+                print(__, [s.cost for s in solutions])
                 yield solutions
+
+            if (__ + 1) % 100 == 0:
+                print("-----", __ + 1, "times passed-----")
 
             success_list.append(cnt)
 
@@ -553,25 +562,6 @@ class Solver:
                         graph.edges[c, a]['weight'] = 1e100
                         graph.edges[b, d]['weight'] = 1e100
                         graph.edges[d, b]['weight'] = 1e100
-
-            # if graph.edges[nodes[i], nodes[(i + 1) % n]]['weight'] > 1e10:
-        #     best_j = -1
-        #     best_dist = 1e100
-        #     for j in range(0, n):
-        #         if graph.edges[nodes[j], nodes[(j + 1) % n]]['weight'] > 1e10:
-        #             continue
-        #         ii, jj = min(i, j), max(i, j)
-        #         distA = graph.edges[nodes[ii], nodes[ii + 1]]['weight']
-        #         distB = graph.edges[nodes[jj], nodes[(jj + 1) % n]]['weight']
-        #         distC = graph.edges[nodes[ii], nodes[jj]]['weight']
-        #         distD = graph.edges[nodes[ii + 1], nodes[(jj + 1) % n]]['weight']
-        #
-        #         if distC < 1e10 and distD < 1e10:
-        #             if distC + distD - distA - distB < best_dist:
-        #                 best_j = j
-        #                 best_dist = distC + distD
-        #     if best_j != -1:
-        #         continue
 
 
 class SolverPlugin:

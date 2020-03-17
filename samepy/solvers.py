@@ -209,17 +209,18 @@ class Solver:
             best = solution
         return best
 
-    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False, is_opt2=False):
+    def optimize(self, graph, colony, gen_size=None, limit=None, problem=None, pheromone_update=False, is_opt2=False, is_maxmin=False):
         gen_size = gen_size
         ants = colony.get_ants(gen_size)
 
         state = State(graph=graph, ants=ants, limit=limit, gen_size=gen_size,
                       colony=colony, rho=self.rho, q=self.q, top=self.top)
 
-        print("------optimize begin------")
+        print("-----optimize begin-----")
         prev = 1e200
         cnt = 0
         success_list = []
+        best_solutions = None
 
         for __ in utils.looper(limit):
 
@@ -230,14 +231,14 @@ class Solver:
             max_cost = max([s.cost for s in solutions])
             avg = costs / len(solutions)
 
-            sd = sum([(s.cost - avg) ** 2 for s in solutions])
+            sd = sum([(s.cost - avg) ** 2 for s in solutions]) / len(solutions)
 
             theta = 3
 
-            if sd < 1e20:
+            if sd < 1e30:
                 costs += sd ** theta
 
-            if max_cost > 1e10:
+            if max_cost > 1e30:
                 cnt += 1
 
                 # self.make_moving_image(solutions, graph, problem)
@@ -245,35 +246,34 @@ class Solver:
                 # if random.random() < 0.2:
                 #     exit()
 
-            if is_opt2 and max_cost > 1e10:
+            if is_opt2 and max_cost > 1e30:
                 self.opt2(ng, solutions, graph)
 
                 costs = sum([s.cost for s in solutions])
                 max_cost = max([s.cost for s in solutions])
                 avg = costs / len(solutions)
 
-                sd = sum([(s.cost - avg) ** 2 for s in solutions])
+                sd = sum([(s.cost - avg) ** 2 for s in solutions]) / len(solutions)
 
                 theta = 3
 
-                if sd < 1e20:
+                if sd < 1e30:
                     costs += sd ** theta
 
-                if max_cost < 1e10:
+                if max_cost < 1e30:
                     cnt -= 1
 
             if pheromone_update:
                 # success
-                if sd < 1e20:
+                if sd < 1e30:
                     next_pheromones = collections.defaultdict(float)
                     for solution in solutions:
                         for edge in solution:
                             next_pheromones[edge] += self.q / solution.cost
                     for edge in state.graph.edges:
                         p = graph.edges[edge]['pheromone']
-
                         if is_opt2:
-                            graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
+                            graph.edges[edge]['pheromone'] += next_pheromones[edge] / len(graph.nodes)
                         else:
                             graph.edges[edge]['pheromone'] = (1 - self.rho) * p + next_pheromones[edge]
 
@@ -304,8 +304,24 @@ class Solver:
 
             if costs < prev:
                 prev = costs
+                best_solutions = solutions
                 print(__, [s.cost for s in solutions])
                 yield solutions
+
+            # 役に立たない
+            # if is_maxmin and best_solutions:
+            #     record_cost = prev
+            #     rho = self.rho
+            #     p_best = 0.05
+            #     n = graph.number_of_nodes()
+            #
+            #     tau_max = (1 / rho) * (1 / record_cost)
+            #     tau_min = (tau_max * (1 - p_best ** (1 / n))) / ((n / 2 - 1) * (p_best ** (1 / n)))
+            #
+            #     for edge in graph.edges():
+            #         p = graph.edges[edge]['pheromone']
+            #         p = min(tau_max, max(tau_min, p))
+            #         graph.edges[edge]['pheromone'] = p
 
             if (__ + 1) % 100 == 0:
                 print("-----", __ + 1, "times passed-----")

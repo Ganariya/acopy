@@ -16,7 +16,7 @@ from acopy.plugins import StatsRecorder, DrawGraph, Printout, InitialEdgePheromo
 from acopy.utils.plot import Plotter
 
 # K = int(input())
-K = 5
+K = 4
 
 # -------------------------------------------------
 # 初期グラフの作成
@@ -35,7 +35,7 @@ solver.add_plugins(recorder, printer, restricter)
 
 limit = 1000
 
-init_ans = solver.solve(graph, colony, limit=limit // 3)
+init_ans = solver.solve(graph, colony, limit=limit // 10)
 print(init_ans)
 print("\n\n\n")
 
@@ -75,7 +75,7 @@ print("\n\n\n")
 # -------------------------------------------------
 # pheromone update fix graph
 
-
+#
 print("test opt2 fix update")
 colony = samepy.Colony()
 solver = samepy.Solver()
@@ -90,6 +90,26 @@ for sol in average_solutions:
     print(path)
     cnt += 1
 print("\n\n\n")
+
+# -------------------------------------------------
+# pheromone update fix graph
+
+#
+print("only opt2")
+colony = samepy.Colony()
+solver = samepy.Solver()
+update_graph = copy.deepcopy(graph)
+
+average_solutions = solver.solve(update_graph, colony, limit=limit, gen_size=K, problem=problem, is_opt2=True)
+cnt = 0
+for sol in average_solutions:
+    print(sol)
+    path = sol.path
+    title = f"average  cost {sol.cost}"
+    print(path)
+    cnt += 1
+print("\n\n\n")
+
 
 # -------------------------------------------------
 # Greedy解の構築

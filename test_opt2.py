@@ -35,7 +35,7 @@ solver.add_plugins(recorder, printer, restricter)
 
 limit = 1000
 
-init_ans = solver.solve(graph, colony, limit=limit // 10)
+init_ans = solver.solve(graph, colony, limit=limit // 4)
 print(init_ans)
 print("\n\n\n")
 
